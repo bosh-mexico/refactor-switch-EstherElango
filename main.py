@@ -1,4 +1,3 @@
-
 from enum import Enum
 
 # Define Payment Modes
@@ -8,23 +7,35 @@ class PaymentMode(Enum):
     CREDITCARD = 3
     UNKNOWN = 99
 
-# Checkout function (only returns message, no printing)
-def checkout(mode: PaymentMode, amount: float) -> str:
-    match mode:
-        case PaymentMode.PAYPAL:
-            return f"Processing PayPal payment of ${amount:.2f}"
-        case PaymentMode.GOOGLEPAY:
-            return f"Processing GooglePay payment of ${amount:.2f}"
-        case PaymentMode.CREDITCARD:
-            return f"Processing Credit Card payment of ${amount:.2f}"
-        case _:
-            return "Invalid payment mode selected!"
+# Separate processing logic for cleaner design
+def process_paypal(amount):
+    print(f"Processing PayPal payment of ${amount:.2f}")
 
-# Example usage (separate responsibility: printing/logging)
+def process_googlepay(amount):
+    print(f"Processing GooglePay payment of ${amount:.2f}")
+
+def process_creditcard(amount):
+    print(f"Processing Credit Card payment of ${amount:.2f}")
+
+# Checkout function (controller)
+def checkout(mode: PaymentMode, amount: float):
+    payment_processors = {
+        PaymentMode.PAYPAL: process_paypal,
+        PaymentMode.GOOGLEPAY: process_googlepay,
+        PaymentMode.CREDITCARD: process_creditcard,
+    }
+
+    processor = payment_processors.get(mode)
+    if processor:
+        processor(amount)
+    else:
+        print("Invalid payment mode selected!")
+
+# Example usage
 if __name__ == "__main__":
     amount = 150.75
+    checkout(PaymentMode.PAYPAL, amount)
+    checkout(PaymentMode.GOOGLEPAY, amount)
+    checkout(PaymentMode.CREDITCARD, amount)
+    checkout(PaymentMode.UNKNOWN, amount)
 
-    print(checkout(PaymentMode.PAYPAL, amount))
-    print(checkout(PaymentMode.GOOGLEPAY, amount))
-    print(checkout(PaymentMode.CREDITCARD, amount))
-    print(checkout(PaymentMode.UNKNOWN, amount))
